@@ -4,6 +4,7 @@ import { initMusicPlayerFromDom } from './game/music.js';
 import { initOnlinePresence, setOnlineBadgeElement } from './presence.js';
 import { initClientNavigation, updateNavActive } from './navigation.js';
 import { normalizePath } from './routes.js';
+import { abbreviateAddress } from './token-config.js';
 
 initMusicPlayerFromDom();
 initBurnerWalletUi();
@@ -17,18 +18,22 @@ initOnlinePresence({
   badgeEl: document.getElementById('onlineNow'),
 });
 
-function initPageContent() {
-  const path = normalizePath(window.location.pathname);
+let landingHandlersBound = false;
 
-  updateNavActive(path);
-  setOnlineBadgeElement(document.getElementById('onlineNow'));
-  syncBurnerWalletHeader();
+function bindLandingHandlersOnce() {
+  if (landingHandlersBound) return;
+  landingHandlersBound = true;
 
-  const copyCaBtn = document.getElementById('copyCa');
-  const contractAddressEl = document.getElementById('contractAddress');
-  if (copyCaBtn && contractAddressEl) {
-    const copyLabel = copyCaBtn.querySelector('.token-ca-copy-label');
-    copyCaBtn.addEventListener('click', async () => {
+  document.addEventListener('click', async (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const copyCaBtn = target.closest('#copyCa');
+    if (copyCaBtn) {
+      const contractAddressEl = document.getElementById('contractAddress');
+      if (!contractAddressEl) return;
+
+      const copyLabel = copyCaBtn.querySelector('.token-ca-copy-label');
       await navigator.clipboard.writeText(contractAddressEl.textContent.trim());
       copyCaBtn.classList.add('copied');
       if (copyLabel) copyLabel.textContent = 'Copied!';
@@ -36,55 +41,76 @@ function initPageContent() {
         copyCaBtn.classList.remove('copied');
         if (copyLabel) copyLabel.textContent = 'Copy CA';
       }, 1500);
-    });
-  }
+      return;
+    }
 
-  document.querySelectorAll('.alloc-wallet-copy').forEach((btn) => {
-    const label = btn.querySelector('.alloc-wallet-copy-label');
-    const addrEl = btn.closest('.alloc-wallet')?.querySelector('.alloc-wallet-addr');
-
-    btn.addEventListener('click', async () => {
-      const full = btn.dataset.copyAddress?.trim();
+    const allocBtn = target.closest('.alloc-wallet-copy');
+    if (allocBtn) {
+      const full = allocBtn.dataset.copyAddress?.trim();
       if (!full) return;
 
+      const label = allocBtn.querySelector('.alloc-wallet-copy-label');
+      const addrEl = allocBtn.closest('.alloc-wallet')?.querySelector('.alloc-wallet-addr');
+      const display = addrEl?.getAttribute('title')?.trim()
+        ? abbreviateAddress(addrEl.getAttribute('title').trim())
+        : abbreviateAddress(full);
+
       await navigator.clipboard.writeText(full);
-      btn.classList.add('copied');
+      allocBtn.classList.add('copied');
       if (label) label.textContent = 'Copied!';
       if (addrEl) addrEl.textContent = 'Copied!';
 
       setTimeout(() => {
-        btn.classList.remove('copied');
+        allocBtn.classList.remove('copied');
         if (label) label.textContent = 'Copy';
-        if (addrEl) addrEl.textContent = 'GRoW…qpqz';
+        if (addrEl) addrEl.textContent = display;
       }, 1500);
-    });
-  });
+      return;
+    }
 
-  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-  const nav = document.querySelector('.nav');
-  if (mobileMenuBtn && nav) {
-    mobileMenuBtn.addEventListener('click', () => {
+    const mobileMenuBtn = target.closest('#mobileMenuBtn');
+    if (mobileMenuBtn) {
+      const nav = document.querySelector('.nav');
+      if (!nav) return;
       const isOpen = nav.classList.toggle('open');
       mobileMenuBtn.classList.toggle('is-open', isOpen);
-    });
+      return;
+    }
 
-    nav.querySelectorAll('a').forEach((link) => {
-      link.addEventListener('click', () => {
-        nav.classList.remove('open');
-        mobileMenuBtn.classList.remove('is-open');
-      });
-    });
-  }
+    const navLink = target.closest('.nav a');
+    if (navLink) {
+      const nav = document.querySelector('.nav');
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      nav?.classList.remove('open');
+      mobileMenuBtn?.classList.remove('is-open');
+    }
+  });
 
-  document.querySelectorAll('.faq-entry').forEach((entry) => {
-    entry.addEventListener('toggle', () => {
-      if (!entry.open) return;
+  document.addEventListener(
+    'toggle',
+    (event) => {
+      const entry = event.target;
+      if (!(entry instanceof HTMLDetailsElement) || !entry.classList.contains('faq-entry') || !entry.open) {
+        return;
+      }
+
       document.querySelectorAll('.faq-entry').forEach((other) => {
         if (other !== entry) other.open = false;
       });
-    });
-  });
+    },
+    true,
+  );
 }
+
+function initPageContent() {
+  const path = normalizePath(window.location.pathname);
+
+  updateNavActive(path);
+  setOnlineBadgeElement(document.getElementById('onlineNow'));
+  syncBurnerWalletHeader();
+}
+
+bindLandingHandlersOnce();
 
 initClientNavigation({
   onPageSwap: initPageContent,

@@ -1,14 +1,14 @@
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import bs58 from 'bs58';
+import { DIYH_MINT } from './token-config.js';
+
+export { DIYH_MINT } from './token-config.js';
 
 const STORAGE_KEY = 'diyh_burner_wallet';
 const LEGACY_STORAGE_KEYS = ['dyih_burner_wallet', 'growdy_burner_wallet'];
 
 /** @type {Keypair|null} */
 let cachedWallet = null;
-
-/** Solana mainnet — $DIYH mint (same as tokenomics page). */
-export const DIYH_MINT = 'HMJKARkqpNxKfxF6kAayrGCBozcupHX3GrZ8bhvWpuMp';
 
 /** @deprecated Use DIYH_MINT */
 export const DYIH_MINT = DIYH_MINT;
