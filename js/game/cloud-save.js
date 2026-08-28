@@ -33,10 +33,12 @@ export async function fetchCloudSave(walletAddress) {
     .maybeSingle();
 
   if (error || !data?.save_data) return null;
-  if (data.save_version !== SAVE_VERSION) return null;
+  if (data.save_version !== SAVE_VERSION && data.save_version !== 2) return null;
 
   try {
-    return normalizeState(data.save_data);
+    const state = normalizeState(data.save_data);
+    state.version = SAVE_VERSION;
+    return state;
   } catch {
     return null;
   }

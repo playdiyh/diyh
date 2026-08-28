@@ -3,7 +3,7 @@
 
 create table if not exists public.game_saves (
   wallet_address text primary key,
-  save_version int not null default 2,
+  save_version int not null default 3,
   save_data jsonb not null,
   updated_at timestamptz not null default now()
 );
@@ -24,6 +24,10 @@ create policy "game_saves_insert"
 
 create policy "game_saves_update"
   on public.game_saves for update
+  using (true);
+
+create policy "game_saves_delete"
+  on public.game_saves for delete
   using (true);
 
 -- Live presence for "ONLINE NOW" (heartbeat every ~45s from client).

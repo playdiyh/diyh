@@ -2,7 +2,7 @@ import {
   exportSecretKeyBase58,
   fetchWalletBalances,
   formatAddress,
-  formatGrowdyAmount,
+  formatDyihAmount,
   getBurnerAddress,
   getBurnerWallet,
 } from './wallet.js';
@@ -31,11 +31,11 @@ function ensureWalletModal() {
       <button type="button" class="wallet-modal-close" id="walletModalClose" aria-label="Close">✕</button>
       <p class="wallet-modal-badge">🔥 Burner Wallet</p>
       <h2 class="wallet-modal-title" id="walletModalTitle">Your Wallet</h2>
-      <p class="wallet-modal-desc">Your Solana burner wallet — holds on-chain $GROWDY & SOL. Export the key to use Phantom or Solflare.</p>
+      <p class="wallet-modal-desc">Your Solana burner wallet — holds on-chain $DYIH & SOL. Export the key to use Phantom or Solflare.</p>
 
       <div class="wallet-modal-info">
-        <p><strong>In-game $GROWDY</strong> is earned inside the game (swap dickoin). It lives in your save, not on-chain.</p>
-        <p><strong>On-chain $GROWDY</strong> is the real token in this wallet — buy on Pump.fun, trade on DEX.</p>
+        <p><strong>In-game $DYIH</strong> is earned inside the game (swap dickoin). It lives in your save, not on-chain.</p>
+        <p><strong>On-chain $DYIH</strong> is the real token in this wallet — buy on Pump.fun, trade on DEX.</p>
       </div>
 
       <div class="wallet-modal-row">
@@ -46,12 +46,12 @@ function ensureWalletModal() {
 
       <div class="wallet-modal-balances">
         <div class="wallet-modal-balance">
-          <span class="wallet-modal-label">$GROWDY on-chain</span>
-          <strong class="wallet-modal-value wallet-modal-value--yellow" id="walletGrowdyOnChain">…</strong>
+          <span class="wallet-modal-label">$DYIH on-chain</span>
+          <strong class="wallet-modal-value wallet-modal-value--yellow" id="walletDyihOnChain">…</strong>
         </div>
         <div class="wallet-modal-balance" id="walletInGameRow" hidden>
-          <span class="wallet-modal-label">$GROWDY in-game</span>
-          <strong class="wallet-modal-value wallet-modal-value--yellow" id="walletGrowdyInGame">0</strong>
+          <span class="wallet-modal-label">$DYIH in-game</span>
+          <strong class="wallet-modal-value wallet-modal-value--yellow" id="walletDyihInGame">0</strong>
         </div>
         <div class="wallet-modal-balance">
           <span class="wallet-modal-label">SOL (gas)</span>
@@ -98,12 +98,12 @@ export function initBurnerWalletUi(options = {}) {
     walletBtn.setAttribute('aria-haspopup', 'dialog');
   }
 
-  if (options.getInGameGrowdy && walletBtn && !walletBtn.querySelector('.wallet-growdy-pill')) {
+  if (options.getInGameDyih && walletBtn && !walletBtn.querySelector('.wallet-dyih-pill')) {
     const pill = document.createElement('span');
-    pill.className = 'wallet-growdy-pill';
+    pill.className = 'wallet-dyih-pill';
     pill.setAttribute('aria-hidden', 'true');
     walletBtn.insertBefore(pill, walletBtn.querySelector('.wallet-address'));
-    pill.textContent = formatGrowdyAmount(options.getInGameGrowdy());
+    pill.textContent = formatDyihAmount(options.getInGameDyih());
   }
 
   ensureWalletModal();
@@ -113,8 +113,8 @@ export function initBurnerWalletUi(options = {}) {
   const closeBtn = document.getElementById('walletModalClose');
   const addressEl = document.getElementById('walletModalAddress');
   const copyAddressBtn = document.getElementById('walletCopyAddress');
-  const growdyOnChainEl = document.getElementById('walletGrowdyOnChain');
-  const growdyInGameEl = document.getElementById('walletGrowdyInGame');
+  const dyihOnChainEl = document.getElementById('walletDyihOnChain');
+  const dyihInGameEl = document.getElementById('walletDyihInGame');
   const inGameRow = document.getElementById('walletInGameRow');
   const solEl = document.getElementById('walletSolBalance');
   const statusEl = document.getElementById('walletBalanceStatus');
@@ -128,13 +128,13 @@ export function initBurnerWalletUi(options = {}) {
 
   addressEl.textContent = address;
 
-  if (options.getInGameGrowdy && inGameRow && growdyInGameEl) {
+  if (options.getInGameDyih && inGameRow && dyihInGameEl) {
     inGameRow.hidden = false;
   }
 
   function updateInGameBalance() {
-    if (!options.getInGameGrowdy || !growdyInGameEl) return;
-    growdyInGameEl.textContent = formatGrowdyAmount(options.getInGameGrowdy());
+    if (!options.getInGameDyih || !dyihInGameEl) return;
+    dyihInGameEl.textContent = formatDyihAmount(options.getInGameDyih());
   }
 
   function stopInGamePoll() {
@@ -153,7 +153,7 @@ export function initBurnerWalletUi(options = {}) {
   }
 
   async function refreshBalances() {
-    if (growdyOnChainEl) growdyOnChainEl.textContent = '…';
+    if (dyihOnChainEl) dyihOnChainEl.textContent = '…';
     if (solEl) solEl.textContent = '…';
     if (statusEl) {
       statusEl.hidden = true;
@@ -166,17 +166,17 @@ export function initBurnerWalletUi(options = {}) {
     const balances = await fetchWalletBalances(address);
 
     if (balances.status === 'error') {
-      if (growdyOnChainEl) growdyOnChainEl.textContent = '—';
+      if (dyihOnChainEl) dyihOnChainEl.textContent = '—';
       if (solEl) solEl.textContent = '—';
       if (statusEl) {
         statusEl.hidden = false;
-        statusEl.textContent = 'On-chain balance unavailable right now. In-game $GROWDY still works. Tap Refresh to retry.';
+        statusEl.textContent = 'On-chain balance unavailable right now. In-game $DYIH still works. Tap Refresh to retry.';
         statusEl.classList.add('is-error');
       }
       return;
     }
 
-    if (growdyOnChainEl) growdyOnChainEl.textContent = formatGrowdyAmount(balances.growdyOnChain);
+    if (dyihOnChainEl) dyihOnChainEl.textContent = formatDyihAmount(balances.dyihOnChain);
     if (solEl) solEl.textContent = balances.sol != null ? balances.sol.toFixed(4) : '—';
   }
 
@@ -186,7 +186,7 @@ export function initBurnerWalletUi(options = {}) {
     resetExportPanel();
     refreshBalances();
     stopInGamePoll();
-    if (options.getInGameGrowdy) {
+    if (options.getInGameDyih) {
       inGamePollTimer = setInterval(updateInGameBalance, 1000);
     }
     closeBtn?.focus();
@@ -249,8 +249,8 @@ export function initBurnerWalletUi(options = {}) {
 }
 
 /** Call from game render loop to keep badge in sync (optional). */
-export function refreshWalletBadgeGrowdy(getInGameGrowdy) {
-  const el = document.querySelector('.wallet-growdy-pill');
-  if (!el || !getInGameGrowdy) return;
-  el.textContent = formatGrowdyAmount(getInGameGrowdy());
+export function refreshWalletBadgeDyih(getInGameDyih) {
+  const el = document.querySelector('.wallet-dyih-pill');
+  if (!el || !getInGameDyih) return;
+  el.textContent = formatDyihAmount(getInGameDyih());
 }

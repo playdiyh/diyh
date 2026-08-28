@@ -1,39 +1,62 @@
-# Growdy Landing Page
+# DYIH
 
-Landing page for **Growdy** — a crypto play-to-earn game.
+Idle play-to-earn game on Solana — tap, earn dickoin, swap to $DYIH.
 
-## Quick Start
-
-Open `index.html` in your browser, or run a local server:
+## Local dev
 
 ```bash
-# Python
-python3 -m http.server 8080
-
-# Node.js (npx)
-npx serve .
+npm install
+cp .env.example .env.local   # then fill Supabase keys (see below)
+npm run dev
 ```
 
-Then visit `http://localhost:8080`
+Open `http://localhost:5173`
+
+## New Supabase project (cloud save + ONLINE NOW)
+
+1. Create a project at [supabase.com/dashboard](https://supabase.com/dashboard)
+2. **SQL Editor** → paste & run all of `supabase/schema.sql`
+3. **Project Settings → API** → copy:
+   - **Project URL** → `VITE_SUPABASE_URL` (e.g. `https://abcdefgh.supabase.co`, no trailing slash, no `/rest/v1/`)
+   - **anon public** key → `VITE_SUPABASE_ANON_KEY`
+4. Put both in `.env.local` (never commit this file)
+5. Restart `npm run dev` — game Settings should show cloud sync, not “Local save only”
+
+Tables created: `game_saves`, `player_presence`
+
+## New GitHub repo
+
+Remote lama (`yami-kiosk/Growdy`) sudah dihapus dari project ini.
+
+```bash
+# 1. Buat repo kosong di GitHub akun baru (Public, tanpa README)
+
+# 2. Hubungkan & push (ganti USERNAME)
+git remote add origin https://github.com/playdiyh/diyh.git
+git add .
+git commit -m "Rebrand to DYIH and prepare fresh GitHub + Supabase setup."
+git push -u origin main
+```
+
+Login push pakai **Personal Access Token** akun GitHub baru (Settings → Developer settings → Tokens → scope `repo`).
+
+## Deploy Vercel
+
+1. [vercel.com/new](https://vercel.com/new) → Import repo GitHub baru
+2. Framework: **Vite** (auto-detected)
+3. **Environment Variables** (Production + Preview):
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+4. Deploy → test `/game` → Settings → cloud save connected
+
+Env var Vite hanya dibaca saat **build** — set env dulu, lalu redeploy kalau sudah pernah deploy tanpa env.
 
 ## Structure
 
 ```
-Growdy/
-├── index.html          # Main landing page
-├── css/style.css       # Styles (glassmorphism, dark theme)
-├── js/main.js          # Wallet connect & stat animations
-└── assets/
-    ├── logo-icon.svg   # Logo icon
-    └── mascot-character.svg  # Growdy mascot
+├── index.html, game.html, …   # Pages (clean URLs via vercel.json)
+├── js/                        # Game engine, wallet, navigation
+├── css/
+├── assets/
+└── supabase/schema.sql        # Run once on new Supabase project
 ```
-
-## Features
-
-- Dark glassmorphism UI matching the design mockup
-- Green candlestick chart background
-- Game stats panel (Growdy Length, MPS)
-- Token stats panel (Market Cap, Token Price, sparkline)
-- About, How to Play, and Tokenomics sections
-- Responsive layout for mobile & tablet
-- Animated mascot & live stat updates

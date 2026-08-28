@@ -1,13 +1,17 @@
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import bs58 from 'bs58';
 
-const STORAGE_KEY = 'growdy_burner_wallet';
+const STORAGE_KEY = 'dyih_burner_wallet';
+const LEGACY_STORAGE_KEY = 'growdy_burner_wallet';
 
 /** @type {Keypair|null} */
 let cachedWallet = null;
 
-/** Solana mainnet — $GROWDY mint (same as tokenomics page). */
-export const GROWDY_MINT = 'HMJKARkqpNxKfxF6kAayrGCBozcupHX3GrZ8bhvWpuMp';
+/** Solana mainnet — $DYIH mint (same as tokenomics page). */
+export const DYIH_MINT = 'HMJKARkqpNxKfxF6kAayrGCBozcupHX3GrZ8bhvWpuMp';
+
+/** @deprecated Use DYIH_MINT */
+export const GROWDY_MINT = DYIH_MINT;
 
 /** Public mainnet RPCs — no API key required (browser-safe reads). */
 const RPC_URLS = [
@@ -35,7 +39,14 @@ function toFriendlyRpcError(err) {
 /** @returns {Keypair|null} */
 function loadStoredKeypair() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (raw) {
+        localStorage.setItem(STORAGE_KEY, raw);
+        localStorage.removeItem(LEGACY_STORAGE_KEY);
+      }
+    }
     if (!raw) return null;
 
     const parsed = JSON.parse(raw);
@@ -102,7 +113,7 @@ export function formatAddress(address, chars = 4) {
 }
 
 /** @param {number|null|undefined} amount */
-export function formatGrowdyAmount(amount) {
+export function formatDyihAmount(amount) {
   if (amount == null || !Number.isFinite(amount)) return '—';
   if (amount === 0) return '0';
   if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(2)}M`;
@@ -111,9 +122,12 @@ export function formatGrowdyAmount(amount) {
   return amount.toLocaleString('en-US', { maximumFractionDigits: 4 });
 }
 
+/** @deprecated Use formatDyihAmount */
+export const formatGrowdyAmount = formatDyihAmount;
+
 /**
  * @typedef {Object} WalletBalances
- * @property {number|null} growdyOnChain
+ * @property {number|null} dyihOnChain
  * @property {number|null} sol
  * @property {'ok'|'error'} status
  * @property {string} [error]
@@ -122,13 +136,13 @@ export function formatGrowdyAmount(amount) {
 /** @param {string} [ownerAddress] @returns {Promise<WalletBalances>} */
 export async function fetchWalletBalances(ownerAddress = getBurnerAddress()) {
   const result = /** @type {WalletBalances} */ ({
-    growdyOnChain: null,
+    dyihOnChain: null,
     sol: null,
     status: 'ok',
   });
 
   const owner = new PublicKey(ownerAddress);
-  const mint = new PublicKey(GROWDY_MINT);
+  const mint = new PublicKey(DYIH_MINT);
   /** @type {Error|null} */
   let lastError = null;
 
@@ -146,9 +160,9 @@ export async function fetchWalletBalances(ownerAddress = getBurnerAddress()) {
       if (tokenAccounts.value.length > 0) {
         const info = tokenAccounts.value[0].account.data.parsed?.info;
         const ui = info?.tokenAmount?.uiAmount;
-        result.growdyOnChain = typeof ui === 'number' ? ui : Number(info?.tokenAmount?.uiAmountString ?? 0);
+        result.dyihOnChain = typeof ui === 'number' ? ui : Number(info?.tokenAmount?.uiAmountString ?? 0);
       } else {
-        result.growdyOnChain = 0;
+        result.dyihOnChain = 0;
       }
 
       return result;

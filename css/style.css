@@ -850,7 +850,7 @@ html {
   transform: scale(0.96);
 }
 
-.wallet-growdy-pill {
+.wallet-dyih-pill {
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--yellow);
@@ -862,7 +862,7 @@ html {
 }
 
 @media (max-width: 720px) {
-  .wallet-growdy-pill {
+  .wallet-dyih-pill {
     display: none;
   }
 }

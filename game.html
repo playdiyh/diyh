@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <script type="module" src="js/music-preload.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>GROWDY</title>
+  <title>DYIH</title>
   <link rel="icon" href="assets/logo.png" type="image/png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,8 +19,8 @@
   <div class="page game-page">
     <header class="header">
       <a href="/" class="logo">
-        <img src="assets/logo.png" alt="GROWDY" class="logo-icon" />
-        GROWDY
+        <img src="assets/logo.png" alt="DYIH" class="logo-icon" />
+        DYIH
       </a>
       <nav class="nav">
         <a href="/gameplay">Gameplay</a>
@@ -92,8 +92,8 @@
             <span class="game-currency-value" id="dickoinStat">0</span>
           </div>
           <div class="game-currency">
-            <span class="game-currency-label">$GROWDY <span class="game-currency-hint">in-game</span></span>
-            <span class="game-currency-value game-currency-value--yellow" id="growdyStat">0</span>
+            <span class="game-currency-label">$DYIH <span class="game-currency-hint">in-game</span></span>
+            <span class="game-currency-value game-currency-value--yellow" id="dyihStat">0</span>
           </div>
         </div>
 
@@ -116,17 +116,17 @@
         </div>
 
         <div class="game-panel active" id="panel-workers" role="tabpanel">
-          <p class="game-panel-desc">Hire crew — tied to growth phases & $GROWDY utility.</p>
+          <p class="game-panel-desc">Hire crew — tied to growth phases & $DYIH utility.</p>
           <div class="game-shop-list" id="workerList"></div>
         </div>
 
         <div class="game-panel" id="panel-skills" role="tabpanel" hidden>
-          <p class="game-panel-desc">$GROWDY utilities — Growth Access & Guild Raids.</p>
+          <p class="game-panel-desc">$DYIH utilities — Growth Access & Guild Raids.</p>
           <div class="game-shop-list" id="skillList"></div>
         </div>
 
         <div class="game-panel" id="panel-gacha" role="tabpanel" hidden>
-          <p class="game-panel-desc">Spend $GROWDY for random boosts — unlocks Phase 2.</p>
+          <p class="game-panel-desc">Spend $DYIH for random boosts — unlocks Phase 2.</p>
           <div class="game-gacha-lock" id="gachaLock" hidden>
             <p class="game-lock-msg">
               <img src="assets/lock.png" alt="" class="game-lock-icon" width="20" height="20" />
@@ -140,7 +140,7 @@
             </div>
             <p class="game-gacha-buff" id="gachaBuffStatus" hidden></p>
             <div class="game-gacha-actions">
-              <button type="button" class="btn-game-action" id="gachaSingleBtn">Pull ×1 · 50 $GROWDY</button>
+              <button type="button" class="btn-game-action" id="gachaSingleBtn">Pull ×1 · 50 $DYIH</button>
             </div>
             <ul class="game-gacha-rates" id="gachaRates"></ul>
             <div class="game-gacha-results" id="gachaResults" hidden>
@@ -151,7 +151,7 @@
         </div>
 
         <div class="game-panel" id="panel-p2e" role="tabpanel" hidden>
-          <p class="game-panel-desc">Swap dickoin → $GROWDY. Unlocks at Phase 2.</p>
+          <p class="game-panel-desc">Swap dickoin → $DYIH. Unlocks at Phase 2.</p>
           <div class="game-p2e-lock" id="p2eLock" hidden>
             <p class="game-lock-msg">
               <img src="assets/lock.png" alt="" class="game-lock-icon" width="20" height="20" />
@@ -159,14 +159,14 @@
             </p>
           </div>
           <div class="game-p2e" id="p2ePanel">
-            <p class="game-tax-tier" id="taxTierLabel">0 $GROWDY → 80% tax</p>
+            <p class="game-tax-tier" id="taxTierLabel">0 $DYIH → 80% tax</p>
             <p class="game-tax-rate">Current tax: <strong id="taxRateLabel">80%</strong></p>
             <label class="game-swap-label" for="swapAmount">Amount (dickoin)</label>
             <input type="number" class="game-swap-input" id="swapAmount" min="10" step="10" value="100" />
-            <p class="game-swap-preview">You receive: <strong id="swapPreview">0</strong> $GROWDY</p>
-            <button type="button" class="btn-game-action" id="swapBtn">Convert to $GROWDY</button>
+            <p class="game-swap-preview">You receive: <strong id="swapPreview">0</strong> $DYIH</p>
+            <button type="button" class="btn-game-action" id="swapBtn">Convert to $DYIH</button>
             <button type="button" class="btn-game-action btn-game-action--secondary" id="swapMaxBtn">Swap Max</button>
-            <p class="game-currency-note">In-game $GROWDY is separate from tokens in your Solana wallet. Swap converts dickoin → in-game balance for gacha & tax tiers.</p>
+            <p class="game-currency-note">In-game $DYIH is separate from tokens in your Solana wallet. Swap converts dickoin → in-game balance for gacha & tax tiers.</p>
           </div>
         </div>
 
@@ -174,7 +174,7 @@
           <p class="game-panel-desc">Wallet, cloud save & account options.</p>
           <div class="game-settings">
             <section class="game-settings-block">
-              <h3 class="game-settings-title">Two types of $GROWDY</h3>
+              <h3 class="game-settings-title">Two types of $DYIH</h3>
               <ul class="game-settings-list">
                 <li><strong>In-game</strong> — earned by swapping dickoin inside the game. Used for gacha, tax tiers & skills. Shown on the arena HUD.</li>
                 <li><strong>On-chain</strong> — real SPL token in your burner wallet. Buy on Pump.fun, trade on DEX. Check balance via the wallet button in the header.</li>
