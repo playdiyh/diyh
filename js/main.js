@@ -1,5 +1,5 @@
 import { getBurnerWallet, getBurnerAddress } from './wallet.js';
-import { initBurnerWalletUi } from './wallet-ui.js';
+import { initBurnerWalletUi, syncBurnerWalletHeader } from './wallet-ui.js';
 import { initMusicPlayerFromDom } from './game/music.js';
 import { initOnlinePresence, setOnlineBadgeElement } from './presence.js';
 import { initClientNavigation, updateNavActive } from './navigation.js';
@@ -22,6 +22,7 @@ function initPageContent() {
 
   updateNavActive(path);
   setOnlineBadgeElement(document.getElementById('onlineNow'));
+  syncBurnerWalletHeader();
 
   const copyCaBtn = document.getElementById('copyCa');
   const contractAddressEl = document.getElementById('contractAddress');

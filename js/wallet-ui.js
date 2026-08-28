@@ -10,13 +10,19 @@ import {
 /** @type {(() => void)|null} */
 let openWalletModalFn = null;
 
+/** @type {(() => number)|null} */
+let inGameDiyhGetter = null;
+
+/** @type {ReturnType<typeof setInterval>|null} */
+let inGamePollTimer = null;
+
+let modalInitialized = false;
+let headerDelegationBound = false;
+
 /** Open wallet modal from settings or elsewhere. */
 export function openWalletModal() {
   openWalletModalFn?.();
 }
-
-/** @type {ReturnType<typeof setInterval>|null} */
-let inGamePollTimer = null;
 
 function ensureWalletModal() {
   if (document.getElementById('walletModal')) return;
@@ -84,27 +90,21 @@ function ensureWalletModal() {
   document.body.appendChild(modal);
 }
 
-/** @param {WalletUiOptions} [options] */
-export function initBurnerWalletUi(options = {}) {
-  getBurnerWallet();
+function bindHeaderWalletDelegation() {
+  if (headerDelegationBound) return;
+  headerDelegationBound = true;
 
-  const walletBtn = document.getElementById('burnerWallet');
-  const walletAddressEl = document.querySelector('.wallet-address');
-  const address = getBurnerAddress();
+  document.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const btn = target?.closest('#burnerWallet');
+    if (!btn) return;
+    event.preventDefault();
+    openWalletModalFn?.();
+  });
+}
 
-  if (walletAddressEl) walletAddressEl.textContent = formatAddress(address);
-  if (walletBtn) {
-    walletBtn.title = 'Open burner wallet';
-    walletBtn.setAttribute('aria-haspopup', 'dialog');
-  }
-
-  if (options.getInGameDiyh && walletBtn && !walletBtn.querySelector('.wallet-diyh-pill')) {
-    const pill = document.createElement('span');
-    pill.className = 'wallet-diyh-pill';
-    pill.setAttribute('aria-hidden', 'true');
-    walletBtn.insertBefore(pill, walletBtn.querySelector('.wallet-address'));
-    pill.textContent = formatDiyhAmount(options.getInGameDiyh());
-  }
+function initWalletModalOnce() {
+  if (modalInitialized) return;
 
   ensureWalletModal();
 
@@ -126,15 +126,12 @@ export function initBurnerWalletUi(options = {}) {
 
   if (!modal || !addressEl) return;
 
-  addressEl.textContent = address;
-
-  if (options.getInGameDiyh && inGameRow && diyhInGameEl) {
-    inGameRow.hidden = false;
-  }
+  modalInitialized = true;
+  bindHeaderWalletDelegation();
 
   function updateInGameBalance() {
-    if (!options.getInGameDiyh || !diyhInGameEl) return;
-    diyhInGameEl.textContent = formatDiyhAmount(options.getInGameDiyh());
+    if (!inGameDiyhGetter || !diyhInGameEl) return;
+    diyhInGameEl.textContent = formatDiyhAmount(inGameDiyhGetter());
   }
 
   function stopInGamePoll() {
@@ -146,13 +143,13 @@ export function initBurnerWalletUi(options = {}) {
 
   function resetExportPanel() {
     if (exportPanel) exportPanel.hidden = true;
-    if (exportConfirmInput) {
-      exportConfirmInput.value = '';
-    }
+    if (exportConfirmInput) exportConfirmInput.value = '';
     if (exportConfirmBtn) exportConfirmBtn.disabled = true;
   }
 
   async function refreshBalances() {
+    const address = getBurnerAddress();
+
     if (diyhOnChainEl) diyhOnChainEl.textContent = '…';
     if (solEl) solEl.textContent = '…';
     if (statusEl) {
@@ -181,12 +178,17 @@ export function initBurnerWalletUi(options = {}) {
   }
 
   function openModal() {
+    const address = getBurnerAddress();
+    addressEl.textContent = address;
+
+    if (inGameRow) inGameRow.hidden = !inGameDiyhGetter;
+
     modal.hidden = false;
     document.body.classList.add('wallet-modal-active');
     resetExportPanel();
     refreshBalances();
     stopInGamePoll();
-    if (options.getInGameDiyh) {
+    if (inGameDiyhGetter) {
       inGamePollTimer = setInterval(updateInGameBalance, 1000);
     }
     closeBtn?.focus();
@@ -199,18 +201,17 @@ export function initBurnerWalletUi(options = {}) {
     stopInGamePoll();
   }
 
-  walletBtn?.addEventListener('click', openModal);
+  openWalletModalFn = openModal;
+
   backdrop?.addEventListener('click', closeModal);
   closeBtn?.addEventListener('click', closeModal);
-
-  openWalletModalFn = openModal;
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !modal.hidden) closeModal();
   });
 
   copyAddressBtn?.addEventListener('click', async () => {
-    await navigator.clipboard.writeText(address);
+    await navigator.clipboard.writeText(getBurnerAddress());
     if (copyAddressBtn) copyAddressBtn.textContent = 'Copied!';
     setTimeout(() => {
       if (copyAddressBtn) copyAddressBtn.textContent = 'Copy';
@@ -246,6 +247,53 @@ export function initBurnerWalletUi(options = {}) {
       resetExportPanel();
     }, 2000);
   });
+}
+
+/** Re-bind header wallet badge after PJAX swaps the page shell. */
+export function syncBurnerWalletHeader(options = {}) {
+  if (options.getInGameDiyh) {
+    inGameDiyhGetter = options.getInGameDiyh;
+  } else {
+    inGameDiyhGetter = null;
+  }
+
+  getBurnerWallet();
+  const address = getBurnerAddress();
+  const formatted = formatAddress(address);
+
+  document.querySelectorAll('.wallet-address').forEach((el) => {
+    el.textContent = formatted;
+  });
+
+  const walletBtn = document.getElementById('burnerWallet');
+  if (walletBtn) {
+    walletBtn.title = 'Open burner wallet';
+    walletBtn.setAttribute('aria-haspopup', 'dialog');
+  }
+
+  if (options.getInGameDiyh && walletBtn) {
+    let pill = walletBtn.querySelector('.wallet-diyh-pill');
+    if (!pill) {
+      pill = document.createElement('span');
+      pill.className = 'wallet-diyh-pill';
+      pill.setAttribute('aria-hidden', 'true');
+      const addrEl = walletBtn.querySelector('.wallet-address');
+      if (addrEl) walletBtn.insertBefore(pill, addrEl);
+      else walletBtn.appendChild(pill);
+    }
+    pill.textContent = formatDiyhAmount(options.getInGameDiyh());
+  } else if (walletBtn) {
+    walletBtn.querySelector('.wallet-diyh-pill')?.remove();
+  }
+
+  const addressEl = document.getElementById('walletModalAddress');
+  if (addressEl) addressEl.textContent = address;
+}
+
+/** @param {WalletUiOptions} [options] */
+export function initBurnerWalletUi(options = {}) {
+  initWalletModalOnce();
+  syncBurnerWalletHeader(options);
 }
 
 /** Call from game render loop to keep badge in sync (optional). */
