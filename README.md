@@ -1,6 +1,6 @@
-# DYIH
+# DIYH
 
-Idle play-to-earn game on Solana — tap, earn dickoin, swap to $DYIH.
+Idle play-to-earn game on Solana — tap, earn dickoin, swap to $DIYH.
 
 ## Local dev
 
@@ -34,7 +34,7 @@ Remote lama (`yami-kiosk/Growdy`) sudah dihapus dari project ini.
 # 2. Hubungkan & push (ganti USERNAME)
 git remote add origin https://github.com/playdiyh/diyh.git
 git add .
-git commit -m "Rebrand to DYIH and prepare fresh GitHub + Supabase setup."
+git commit -m "Rebrand to DIYH and prepare fresh GitHub + Supabase setup."
 git push -u origin main
 ```
 

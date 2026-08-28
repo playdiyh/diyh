@@ -1,4 +1,4 @@
-import { initBurnerWalletUi, refreshWalletBadgeDyih, openWalletModal } from './wallet-ui.js';
+import { initBurnerWalletUi, refreshWalletBadgeDiyh, openWalletModal } from './wallet-ui.js';
 import { getBurnerAddress, formatAddress } from './wallet.js';
 import { MIN_SWAP_DICKOIN, getPhase, getPhaseImage, GACHA_POOL, GACHA_MIN_PHASE, GACHA_SINGLE_COST, PHASES } from './game/config.js';
 import {
@@ -59,7 +59,7 @@ const els = {
   passiveStat: document.getElementById('passiveStat'),
   clicksStat: document.getElementById('clicksStat'),
   dickoinStat: document.getElementById('dickoinStat'),
-  dyihStat: document.getElementById('dyihStat'),
+  diyhStat: document.getElementById('diyhStat'),
   clickZone: document.getElementById('clickZone'),
   gameCharacter: document.getElementById('gameCharacter'),
   floatLayer: document.getElementById('floatLayer'),
@@ -147,7 +147,7 @@ function getPhasePerks(phaseId) {
   ];
 
   if (phaseId >= 2) perks.push(`Passive: +${phase.basePassiveDickoin}/s dickoin`);
-  if (phase.swapUnlocked) perks.push('Swap dickoin → $DYIH unlocked');
+  if (phase.swapUnlocked) perks.push('Swap dickoin → $DIYH unlocked');
   if (phase.burnRate > 0) perks.push(`Burn rate: ${phase.burnRate} IMPOTENT/s`);
   else perks.push('Safe zone — zero burn');
   if (phaseId === 5) perks.push('Testicle hair growth unlocked');
@@ -275,7 +275,7 @@ function handleEventMessage() {
   } else if (ev === 'liquidate') {
     showToast('🚨 Liquidated all dickoin → IMPOTENT bar');
   } else if (ev.startsWith('swap:')) {
-    showToast(`Swapped → ${formatNum(Number(ev.split(':')[1]))} $DYIH`);
+    showToast(`Swapped → ${formatNum(Number(ev.split(':')[1]))} $DIYH`);
   } else if (ev.startsWith('gacha:')) {
     showToast(`🎰 Gacha ×${ev.split(':')[1]} — good luck…`);
   }
@@ -451,7 +451,7 @@ function renderGacha() {
 
   if (els.gachaSingleBtn) {
     els.gachaSingleBtn.disabled = locked || !canRollGacha(state);
-    els.gachaSingleBtn.textContent = `Pull ×1 · ${GACHA_SINGLE_COST} $DYIH`;
+    els.gachaSingleBtn.textContent = `Pull ×1 · ${GACHA_SINGLE_COST} $DIYH`;
   }
 }
 
@@ -480,8 +480,8 @@ function render() {
     } else if (stats.gateStatus) {
       const unmet = stats.gateStatus.items.find((item) => !item.met);
       if (unmet) {
-        const label = unmet.type === 'dyih'
-          ? `${formatNum(unmet.have)} / ${formatNum(unmet.need)} $DYIH`
+        const label = unmet.type === 'diyh'
+          ? `${formatNum(unmet.have)} / ${formatNum(unmet.need)} $DIYH`
           : `${unmet.name} Lv ${unmet.have}/${unmet.need}`;
         els.phaseProgressText.textContent = `Phase ${stats.nextPhase.id}: ${label} · ${stats.gateStatus.met}/${stats.gateStatus.total} reqs`;
       } else {
@@ -510,7 +510,7 @@ function render() {
   if (els.passiveStat) els.passiveStat.textContent = `${formatNum(stats.passiveDickoin)}/s`;
   if (els.clicksStat) els.clicksStat.textContent = formatNum(state.totalClicks, 0);
   if (els.dickoinStat) els.dickoinStat.textContent = formatNum(state.dickoin);
-  if (els.dyihStat) els.dyihStat.textContent = formatNum(state.dyih);
+  if (els.diyhStat) els.diyhStat.textContent = formatNum(state.diyh);
 
   if (els.liquidateBtn) els.liquidateBtn.disabled = state.dickoin <= 0;
 
@@ -523,7 +523,7 @@ function render() {
   updateSkillShop();
   renderGacha();
   renderP2e();
-  refreshWalletBadgeDyih(() => state.dyih);
+  refreshWalletBadgeDiyh(() => state.diyh);
 }
 
 function gameLoop(now) {
@@ -667,7 +667,7 @@ function initActions() {
 async function boot() {
   initMusicPlayerFromDom();
   state = await loadGameState(walletAddress);
-  initBurnerWalletUi({ getInGameDyih: () => state.dyih });
+  initBurnerWalletUi({ getInGameDiyh: () => state.diyh });
   initOnlinePresence({ walletAddress, page: 'game' });
 
   initNav();

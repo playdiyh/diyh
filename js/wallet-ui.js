@@ -2,7 +2,7 @@ import {
   exportSecretKeyBase58,
   fetchWalletBalances,
   formatAddress,
-  formatDyihAmount,
+  formatDiyhAmount,
   getBurnerAddress,
   getBurnerWallet,
 } from './wallet.js';
@@ -31,11 +31,11 @@ function ensureWalletModal() {
       <button type="button" class="wallet-modal-close" id="walletModalClose" aria-label="Close">✕</button>
       <p class="wallet-modal-badge">🔥 Burner Wallet</p>
       <h2 class="wallet-modal-title" id="walletModalTitle">Your Wallet</h2>
-      <p class="wallet-modal-desc">Your Solana burner wallet — holds on-chain $DYIH & SOL. Export the key to use Phantom or Solflare.</p>
+      <p class="wallet-modal-desc">Your Solana burner wallet — holds on-chain $DIYH & SOL. Export the key to use Phantom or Solflare.</p>
 
       <div class="wallet-modal-info">
-        <p><strong>In-game $DYIH</strong> is earned inside the game (swap dickoin). It lives in your save, not on-chain.</p>
-        <p><strong>On-chain $DYIH</strong> is the real token in this wallet — buy on Pump.fun, trade on DEX.</p>
+        <p><strong>In-game $DIYH</strong> is earned inside the game (swap dickoin). It lives in your save, not on-chain.</p>
+        <p><strong>On-chain $DIYH</strong> is the real token in this wallet — buy on Pump.fun, trade on DEX.</p>
       </div>
 
       <div class="wallet-modal-row">
@@ -46,12 +46,12 @@ function ensureWalletModal() {
 
       <div class="wallet-modal-balances">
         <div class="wallet-modal-balance">
-          <span class="wallet-modal-label">$DYIH on-chain</span>
-          <strong class="wallet-modal-value wallet-modal-value--yellow" id="walletDyihOnChain">…</strong>
+          <span class="wallet-modal-label">$DIYH on-chain</span>
+          <strong class="wallet-modal-value wallet-modal-value--yellow" id="walletDiyhOnChain">…</strong>
         </div>
         <div class="wallet-modal-balance" id="walletInGameRow" hidden>
-          <span class="wallet-modal-label">$DYIH in-game</span>
-          <strong class="wallet-modal-value wallet-modal-value--yellow" id="walletDyihInGame">0</strong>
+          <span class="wallet-modal-label">$DIYH in-game</span>
+          <strong class="wallet-modal-value wallet-modal-value--yellow" id="walletDiyhInGame">0</strong>
         </div>
         <div class="wallet-modal-balance">
           <span class="wallet-modal-label">SOL (gas)</span>
@@ -98,12 +98,12 @@ export function initBurnerWalletUi(options = {}) {
     walletBtn.setAttribute('aria-haspopup', 'dialog');
   }
 
-  if (options.getInGameDyih && walletBtn && !walletBtn.querySelector('.wallet-dyih-pill')) {
+  if (options.getInGameDiyh && walletBtn && !walletBtn.querySelector('.wallet-diyh-pill')) {
     const pill = document.createElement('span');
-    pill.className = 'wallet-dyih-pill';
+    pill.className = 'wallet-diyh-pill';
     pill.setAttribute('aria-hidden', 'true');
     walletBtn.insertBefore(pill, walletBtn.querySelector('.wallet-address'));
-    pill.textContent = formatDyihAmount(options.getInGameDyih());
+    pill.textContent = formatDiyhAmount(options.getInGameDiyh());
   }
 
   ensureWalletModal();
@@ -113,8 +113,8 @@ export function initBurnerWalletUi(options = {}) {
   const closeBtn = document.getElementById('walletModalClose');
   const addressEl = document.getElementById('walletModalAddress');
   const copyAddressBtn = document.getElementById('walletCopyAddress');
-  const dyihOnChainEl = document.getElementById('walletDyihOnChain');
-  const dyihInGameEl = document.getElementById('walletDyihInGame');
+  const diyhOnChainEl = document.getElementById('walletDiyhOnChain');
+  const diyhInGameEl = document.getElementById('walletDiyhInGame');
   const inGameRow = document.getElementById('walletInGameRow');
   const solEl = document.getElementById('walletSolBalance');
   const statusEl = document.getElementById('walletBalanceStatus');
@@ -128,13 +128,13 @@ export function initBurnerWalletUi(options = {}) {
 
   addressEl.textContent = address;
 
-  if (options.getInGameDyih && inGameRow && dyihInGameEl) {
+  if (options.getInGameDiyh && inGameRow && diyhInGameEl) {
     inGameRow.hidden = false;
   }
 
   function updateInGameBalance() {
-    if (!options.getInGameDyih || !dyihInGameEl) return;
-    dyihInGameEl.textContent = formatDyihAmount(options.getInGameDyih());
+    if (!options.getInGameDiyh || !diyhInGameEl) return;
+    diyhInGameEl.textContent = formatDiyhAmount(options.getInGameDiyh());
   }
 
   function stopInGamePoll() {
@@ -153,7 +153,7 @@ export function initBurnerWalletUi(options = {}) {
   }
 
   async function refreshBalances() {
-    if (dyihOnChainEl) dyihOnChainEl.textContent = '…';
+    if (diyhOnChainEl) diyhOnChainEl.textContent = '…';
     if (solEl) solEl.textContent = '…';
     if (statusEl) {
       statusEl.hidden = true;
@@ -166,17 +166,17 @@ export function initBurnerWalletUi(options = {}) {
     const balances = await fetchWalletBalances(address);
 
     if (balances.status === 'error') {
-      if (dyihOnChainEl) dyihOnChainEl.textContent = '—';
+      if (diyhOnChainEl) diyhOnChainEl.textContent = '—';
       if (solEl) solEl.textContent = '—';
       if (statusEl) {
         statusEl.hidden = false;
-        statusEl.textContent = 'On-chain balance unavailable right now. In-game $DYIH still works. Tap Refresh to retry.';
+        statusEl.textContent = 'On-chain balance unavailable right now. In-game $DIYH still works. Tap Refresh to retry.';
         statusEl.classList.add('is-error');
       }
       return;
     }
 
-    if (dyihOnChainEl) dyihOnChainEl.textContent = formatDyihAmount(balances.dyihOnChain);
+    if (diyhOnChainEl) diyhOnChainEl.textContent = formatDiyhAmount(balances.diyhOnChain);
     if (solEl) solEl.textContent = balances.sol != null ? balances.sol.toFixed(4) : '—';
   }
 
@@ -186,7 +186,7 @@ export function initBurnerWalletUi(options = {}) {
     resetExportPanel();
     refreshBalances();
     stopInGamePoll();
-    if (options.getInGameDyih) {
+    if (options.getInGameDiyh) {
       inGamePollTimer = setInterval(updateInGameBalance, 1000);
     }
     closeBtn?.focus();
@@ -249,8 +249,8 @@ export function initBurnerWalletUi(options = {}) {
 }
 
 /** Call from game render loop to keep badge in sync (optional). */
-export function refreshWalletBadgeDyih(getInGameDyih) {
-  const el = document.querySelector('.wallet-dyih-pill');
-  if (!el || !getInGameDyih) return;
-  el.textContent = formatDyihAmount(getInGameDyih());
+export function refreshWalletBadgeDiyh(getInGameDiyh) {
+  const el = document.querySelector('.wallet-diyh-pill');
+  if (!el || !getInGameDiyh) return;
+  el.textContent = formatDiyhAmount(getInGameDiyh());
 }

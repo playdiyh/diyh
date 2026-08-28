@@ -42,14 +42,16 @@
 
 /**
  * @typedef {Object} TaxTier
- * @property {number} minDyih
+ * @property {number} minDiyh
  * @property {number} rate
  * @property {string} label
  */
 
 export const TICK_MS = 100;
 export const MAX_CPS = 9;
-export const SAVE_KEY = 'dyih_game_save';
+export const SAVE_KEY = 'diyh_game_save';
+export const LEGACY_SAVE_KEYS = ['dyih_game_save', 'growdy_game_save'];
+/** @deprecated Use LEGACY_SAVE_KEYS */
 export const LEGACY_SAVE_KEY = 'growdy_game_save';
 export const SAVE_VERSION = 3;
 
@@ -136,8 +138,8 @@ export const PHASES = [
 ];
 
 /**
- * Phase unlock gates — worker/skill levels (+ in-game $DYIH for late phases).
- * @type {Record<number, { etaLabel?: string, workers?: Record<string, number>, skills?: Record<string, number>, minDyih?: number }>}
+ * Phase unlock gates — worker/skill levels (+ in-game $DIYH for late phases).
+ * @type {Record<number, { etaLabel?: string, workers?: Record<string, number>, skills?: Record<string, number>, minDiyh?: number }>}
  */
 export const PHASE_GATES = {
   2: {
@@ -157,7 +159,7 @@ export const PHASE_GATES = {
   },
   5: {
     etaLabel: '~12h 42m',
-    minDyih: 7_200_000,
+    minDiyh: 7_200_000,
     workers: { pump_station: 20, trim_clinic: 20, stretch_unit: 25, skin_forge: 28 },
     skills: { growth_access: 20, guild_raids: 15 },
   },
@@ -227,7 +229,7 @@ export const SKILLS = [
   {
     id: 'growth_access',
     name: 'Growth Access',
-    description: 'Hold $DYIH, break into Phase 4–6 — +25% click dickoin per level.',
+    description: 'Hold $DIYH, break into Phase 4–6 — +25% click dickoin per level.',
     baseCost: 175,
     costMult: 1.36,
     maxLevel: 20,
@@ -272,10 +274,10 @@ export const LEGACY_SKILL_IDS = {
 
 /** @type {TaxTier[]} */
 export const TAX_TIERS = [
-  { minDyih: 0, rate: 0.8, label: '0 $DYIH → 80% tax' },
-  { minDyih: 1, rate: 0.5, label: '1–1K → 50% tax' },
-  { minDyih: 1_000, rate: 0.25, label: '1K–10K → 25% tax' },
-  { minDyih: 10_000, rate: 0.1, label: '10K+ → 10% tax' },
+  { minDiyh: 0, rate: 0.8, label: '0 $DIYH → 80% tax' },
+  { minDiyh: 1, rate: 0.5, label: '1–1K → 50% tax' },
+  { minDiyh: 1_000, rate: 0.25, label: '1K–10K → 25% tax' },
+  { minDiyh: 10_000, rate: 0.1, label: '10K+ → 10% tax' },
 ];
 
 export const IMPOTENT_HP_RATIO = 0.5;
@@ -303,7 +305,7 @@ export const GACHA_POOL = [
   { id: 'hp_drip', name: 'IMPOTENT Relief', rarity: 'common', weight: 8000, desc: 'Restore 5% max IMPOTENT bar' },
   { id: 'click_frenzy', name: 'Click Frenzy', rarity: 'rare', weight: 1500, desc: '1.15× click for 30s' },
   { id: 'idle_rush', name: 'Idle Rush', rarity: 'rare', weight: 200, desc: '1.1× passive for 30s' },
-  { id: 'dyih_rebate', name: 'DYIH Rebate', rarity: 'epic', weight: 40, desc: 'Refund 3 $DYIH' },
+  { id: 'diyh_rebate', name: 'DIYH Rebate', rarity: 'epic', weight: 40, desc: 'Refund 3 $DIYH' },
   { id: 'mega_cache', name: 'Mega Cache', rarity: 'epic', weight: 8, desc: 'Small dickoin jackpot' },
   { id: 'golden_grow', name: 'Golden Grow', rarity: 'legendary', weight: 2, desc: '1.3× click & passive for 45s' },
 ];
@@ -334,7 +336,7 @@ export function getPhaseGate(targetPhaseId) {
 }
 
 /**
- * @param {{ workers: Record<string, number>, skills: Record<string, number>, dyih: number }} state
+ * @param {{ workers: Record<string, number>, skills: Record<string, number>, diyh: number }} state
  * @param {number} targetPhaseId
  */
 export function getPhaseGateStatus(state, targetPhaseId) {
@@ -376,17 +378,17 @@ export function getPhaseGateStatus(state, targetPhaseId) {
     if (have >= need) met += 1;
   }
 
-  if (gate.minDyih != null) {
-    const have = state.dyih;
+  if (gate.minDiyh != null) {
+    const have = state.diyh;
     items.push({
-      type: 'dyih',
-      name: '$DYIH in-game',
+      type: 'diyh',
+      name: '$DIYH in-game',
       have,
-      need: gate.minDyih,
-      met: have >= gate.minDyih,
+      need: gate.minDiyh,
+      met: have >= gate.minDiyh,
     });
     total += 1;
-    if (have >= gate.minDyih) met += 1;
+    if (have >= gate.minDiyh) met += 1;
   }
 
   return {

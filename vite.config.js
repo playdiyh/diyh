@@ -29,7 +29,7 @@ export default defineConfig({
   },
   plugins: [
     {
-      name: 'dyih-clean-urls',
+      name: 'diyh-clean-urls',
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
           if (!req.url || req.method !== 'GET') return next();

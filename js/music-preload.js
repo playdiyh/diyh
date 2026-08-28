@@ -1,13 +1,16 @@
-const MUSIC_SESSION_KEY = 'dyih_music_playback';
-const LEGACY_MUSIC_SESSION_KEY = 'growdy_music_playback';
+const MUSIC_SESSION_KEY = 'diyh_music_playback';
+const LEGACY_MUSIC_SESSION_KEYS = ['dyih_music_playback', 'growdy_music_playback'];
 
 try {
   let raw = sessionStorage.getItem(MUSIC_SESSION_KEY);
   if (!raw) {
-    raw = sessionStorage.getItem(LEGACY_MUSIC_SESSION_KEY);
-    if (raw) {
-      sessionStorage.setItem(MUSIC_SESSION_KEY, raw);
-      sessionStorage.removeItem(LEGACY_MUSIC_SESSION_KEY);
+    for (const legacyKey of LEGACY_MUSIC_SESSION_KEYS) {
+      raw = sessionStorage.getItem(legacyKey);
+      if (raw) {
+        sessionStorage.setItem(MUSIC_SESSION_KEY, raw);
+        sessionStorage.removeItem(legacyKey);
+        break;
+      }
     }
   }
   if (raw) {

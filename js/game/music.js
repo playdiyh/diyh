@@ -1,7 +1,7 @@
-const MUSIC_SAVE_KEY = 'dyih_music_state';
-const MUSIC_SESSION_KEY = 'dyih_music_playback';
-const LEGACY_MUSIC_SAVE_KEY = 'growdy_music_state';
-const LEGACY_MUSIC_SESSION_KEY = 'growdy_music_playback';
+const MUSIC_SAVE_KEY = 'diyh_music_state';
+const MUSIC_SESSION_KEY = 'diyh_music_playback';
+const LEGACY_MUSIC_SAVE_KEYS = ['dyih_music_state', 'growdy_music_state'];
+const LEGACY_MUSIC_SESSION_KEYS = ['dyih_music_playback', 'growdy_music_playback'];
 const TRACKS = Array.from({ length: 15 }, (_, i) => ({
   src: `assets/goofy${i + 1}.mp3`,
   label: `Goofy ${i + 1}`,
@@ -18,10 +18,13 @@ function loadMusicSave() {
   try {
     let raw = localStorage.getItem(MUSIC_SAVE_KEY);
     if (!raw) {
-      raw = localStorage.getItem(LEGACY_MUSIC_SAVE_KEY);
-      if (raw) {
-        localStorage.setItem(MUSIC_SAVE_KEY, raw);
-        localStorage.removeItem(LEGACY_MUSIC_SAVE_KEY);
+      for (const legacyKey of LEGACY_MUSIC_SAVE_KEYS) {
+        raw = localStorage.getItem(legacyKey);
+        if (raw) {
+          localStorage.setItem(MUSIC_SAVE_KEY, raw);
+          localStorage.removeItem(legacyKey);
+          break;
+        }
       }
     }
     if (!raw) return null;
@@ -41,10 +44,13 @@ function loadMusicSession() {
   try {
     let raw = sessionStorage.getItem(MUSIC_SESSION_KEY);
     if (!raw) {
-      raw = sessionStorage.getItem(LEGACY_MUSIC_SESSION_KEY);
-      if (raw) {
-        sessionStorage.setItem(MUSIC_SESSION_KEY, raw);
-        sessionStorage.removeItem(LEGACY_MUSIC_SESSION_KEY);
+      for (const legacyKey of LEGACY_MUSIC_SESSION_KEYS) {
+        raw = sessionStorage.getItem(legacyKey);
+        if (raw) {
+          sessionStorage.setItem(MUSIC_SESSION_KEY, raw);
+          sessionStorage.removeItem(legacyKey);
+          break;
+        }
       }
     }
     if (!raw) return null;

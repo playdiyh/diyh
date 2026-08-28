@@ -5,6 +5,7 @@ import {
   TAX_TIERS,
   TICK_MS,
   SAVE_KEY,
+  LEGACY_SAVE_KEYS,
   LEGACY_SAVE_KEY,
   SAVE_VERSION,
   IMPOTENT_HP_RATIO,
@@ -28,7 +29,7 @@ import {
  * @property {number} phase
  * @property {number} hp
  * @property {number} dickoin
- * @property {number} dyih
+ * @property {number} diyh
  * @property {number} totalDickoinEarned
  * @property {number} totalClicks
  * @property {Record<string, number>} workers
@@ -48,7 +49,7 @@ export function createInitialState() {
     phase: 1,
     hp: phase.baseMaxHp,
     dickoin: 0,
-    dyih: 0,
+    diyh: 0,
     totalDickoinEarned: 0,
     totalClicks: 0,
     workers: {},
@@ -67,8 +68,13 @@ export function loadState() {
     let raw = localStorage.getItem(SAVE_KEY);
     let fromLegacyKey = false;
     if (!raw) {
-      raw = localStorage.getItem(LEGACY_SAVE_KEY);
-      fromLegacyKey = Boolean(raw);
+      for (const legacyKey of LEGACY_SAVE_KEYS) {
+        raw = localStorage.getItem(legacyKey);
+        if (raw) {
+          fromLegacyKey = true;
+          break;
+        }
+      }
     }
     if (!raw) return createInitialState();
 
@@ -82,7 +88,9 @@ export function loadState() {
 
     if (fromLegacyKey || parsed.version === 2) {
       saveState(state);
-      if (fromLegacyKey) localStorage.removeItem(LEGACY_SAVE_KEY);
+      for (const legacyKey of LEGACY_SAVE_KEYS) {
+        localStorage.removeItem(legacyKey);
+      }
     }
 
     return state;
@@ -140,8 +148,9 @@ export function normalizeState(raw) {
   const maxHp = computeMaxHp(state);
   state.hp = Math.min(Math.max(0, state.hp), maxHp);
   state.dickoin = Math.max(0, state.dickoin);
-  state.dyih = Math.max(0, raw.dyih ?? raw.growdy ?? 0);
+  state.diyh = Math.max(0, raw.diyh ?? raw.dyih ?? raw.growdy ?? 0);
   delete state.growdy;
+  delete state.dyih;
   return state;
 }
 
@@ -234,10 +243,11 @@ function applyGachaReward(state, item) {
     case 'idle_rush':
       applyGachaBuff(state, 'passive', 1.1, 30);
       return '1.1× passive · 30s';
+    case 'diyh_rebate':
     case 'dyih_rebate':
     case 'growdy_rebate':
-      state.dyih += 3;
-      return '+3 $DYIH back';
+      state.diyh += 3;
+      return '+3 $DIYH back';
     case 'mega_cache': {
       const amount = Math.floor(phase.basePassiveDickoin * 12 + phase.baseClickDickoin * 4 + state.phase * 5);
       state.dickoin += amount;
@@ -260,7 +270,7 @@ export function getGachaCost() {
 /** @param {GameState} state */
 export function canRollGacha(state) {
   if (state.phase < GACHA_MIN_PHASE) return false;
-  return state.dyih >= GACHA_SINGLE_COST;
+  return state.diyh >= GACHA_SINGLE_COST;
 }
 
 /**
@@ -268,11 +278,11 @@ export function canRollGacha(state) {
  * @returns {{ ok: boolean, results: Array<{ id: string, name: string, rarity: string, detail: string }> }}
  */
 export function rollGacha(state) {
-  if (state.phase < GACHA_MIN_PHASE || state.dyih < GACHA_SINGLE_COST) {
+  if (state.phase < GACHA_MIN_PHASE || state.diyh < GACHA_SINGLE_COST) {
     return { ok: false, results: [] };
   }
 
-  state.dyih -= GACHA_SINGLE_COST;
+  state.diyh -= GACHA_SINGLE_COST;
   const item = pickGachaItem();
   const detail = applyGachaReward(state, item);
   const results = [{ id: item.id, name: item.name, rarity: item.rarity, detail }];
@@ -362,7 +372,7 @@ export function computeLength(state) {
 export function getTaxRate(state) {
   let rate = 0.8;
   for (const tier of TAX_TIERS) {
-    if (state.dyih >= tier.minDyih) rate = tier.rate;
+    if (state.diyh >= tier.minDiyh) rate = tier.rate;
   }
   return rate;
 }
@@ -371,7 +381,7 @@ export function getTaxRate(state) {
 export function getCurrentTaxTier(state) {
   let tier = TAX_TIERS[0];
   for (const t of TAX_TIERS) {
-    if (state.dyih >= t.minDyih) tier = t;
+    if (state.diyh >= t.minDiyh) tier = t;
   }
   return tier;
 }
@@ -501,7 +511,7 @@ export function swapDickoin(state, amount) {
   const tax = getTaxRate(state);
   const received = amount * (1 - tax);
   state.dickoin -= amount;
-  state.dyih += received;
+  state.diyh += received;
   state.lastEvent = `swap:${received}`;
   return received;
 }

@@ -1,17 +1,20 @@
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import bs58 from 'bs58';
 
-const STORAGE_KEY = 'dyih_burner_wallet';
-const LEGACY_STORAGE_KEY = 'growdy_burner_wallet';
+const STORAGE_KEY = 'diyh_burner_wallet';
+const LEGACY_STORAGE_KEYS = ['dyih_burner_wallet', 'growdy_burner_wallet'];
 
 /** @type {Keypair|null} */
 let cachedWallet = null;
 
-/** Solana mainnet — $DYIH mint (same as tokenomics page). */
-export const DYIH_MINT = 'HMJKARkqpNxKfxF6kAayrGCBozcupHX3GrZ8bhvWpuMp';
+/** Solana mainnet — $DIYH mint (same as tokenomics page). */
+export const DIYH_MINT = 'HMJKARkqpNxKfxF6kAayrGCBozcupHX3GrZ8bhvWpuMp';
 
-/** @deprecated Use DYIH_MINT */
-export const GROWDY_MINT = DYIH_MINT;
+/** @deprecated Use DIYH_MINT */
+export const DYIH_MINT = DIYH_MINT;
+
+/** @deprecated Use DIYH_MINT */
+export const GROWDY_MINT = DIYH_MINT;
 
 /** Public mainnet RPCs — no API key required (browser-safe reads). */
 const RPC_URLS = [
@@ -41,10 +44,13 @@ function loadStoredKeypair() {
   try {
     let raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      raw = localStorage.getItem(LEGACY_STORAGE_KEY);
-      if (raw) {
-        localStorage.setItem(STORAGE_KEY, raw);
-        localStorage.removeItem(LEGACY_STORAGE_KEY);
+      for (const legacyKey of LEGACY_STORAGE_KEYS) {
+        raw = localStorage.getItem(legacyKey);
+        if (raw) {
+          localStorage.setItem(STORAGE_KEY, raw);
+          localStorage.removeItem(legacyKey);
+          break;
+        }
       }
     }
     if (!raw) return null;
@@ -113,7 +119,7 @@ export function formatAddress(address, chars = 4) {
 }
 
 /** @param {number|null|undefined} amount */
-export function formatDyihAmount(amount) {
+export function formatDiyhAmount(amount) {
   if (amount == null || !Number.isFinite(amount)) return '—';
   if (amount === 0) return '0';
   if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(2)}M`;
@@ -122,12 +128,15 @@ export function formatDyihAmount(amount) {
   return amount.toLocaleString('en-US', { maximumFractionDigits: 4 });
 }
 
-/** @deprecated Use formatDyihAmount */
-export const formatGrowdyAmount = formatDyihAmount;
+/** @deprecated Use formatDiyhAmount */
+export const formatDyihAmount = formatDiyhAmount;
+
+/** @deprecated Use formatDiyhAmount */
+export const formatGrowdyAmount = formatDiyhAmount;
 
 /**
  * @typedef {Object} WalletBalances
- * @property {number|null} dyihOnChain
+ * @property {number|null} diyhOnChain
  * @property {number|null} sol
  * @property {'ok'|'error'} status
  * @property {string} [error]
@@ -136,13 +145,13 @@ export const formatGrowdyAmount = formatDyihAmount;
 /** @param {string} [ownerAddress] @returns {Promise<WalletBalances>} */
 export async function fetchWalletBalances(ownerAddress = getBurnerAddress()) {
   const result = /** @type {WalletBalances} */ ({
-    dyihOnChain: null,
+    diyhOnChain: null,
     sol: null,
     status: 'ok',
   });
 
   const owner = new PublicKey(ownerAddress);
-  const mint = new PublicKey(DYIH_MINT);
+  const mint = new PublicKey(DIYH_MINT);
   /** @type {Error|null} */
   let lastError = null;
 
@@ -160,9 +169,9 @@ export async function fetchWalletBalances(ownerAddress = getBurnerAddress()) {
       if (tokenAccounts.value.length > 0) {
         const info = tokenAccounts.value[0].account.data.parsed?.info;
         const ui = info?.tokenAmount?.uiAmount;
-        result.dyihOnChain = typeof ui === 'number' ? ui : Number(info?.tokenAmount?.uiAmountString ?? 0);
+        result.diyhOnChain = typeof ui === 'number' ? ui : Number(info?.tokenAmount?.uiAmountString ?? 0);
       } else {
-        result.dyihOnChain = 0;
+        result.diyhOnChain = 0;
       }
 
       return result;
